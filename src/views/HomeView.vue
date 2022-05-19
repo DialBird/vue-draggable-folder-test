@@ -4,9 +4,15 @@ import {useSortModelStore} from "@/stores/sortModelStore";
 import FormPopover from '@/views/FormPopover.vue'
 import {Popover, PopoverButton, PopoverPanel} from '@headlessui/vue'
 import {storeToRefs} from "pinia";
+import {defineComponent} from "vue";
+import draggable from 'vuedraggable'
 
 subscribeSortModels((models) => {
   sortModelStore.setSortModels(models)
+})
+
+defineComponent({
+  draggable,
 })
 
 const sortModelStore = useSortModelStore()
@@ -21,9 +27,13 @@ const {sortModels} = storeToRefs(sortModelStore)
           List
         </h1>
         <ul>
-          <li v-for="s in sortModels" :key="s.uid" class="border p-2 rounded-sm">
-            <p>{{ s.name }}</p>
-          </li>
+          <draggable v-model="sortModels" item-key="uid">
+            <template #item="{ element }">
+              <li class="border-b p-2 rounded-sm hover:bg-gray-100">
+                <p>{{ element.name }}</p>
+              </li>
+            </template>
+          </draggable>
           <li class="hover:bg-gray-100 transition relative">
             <Popover v-slot="{ close }">
               <PopoverButton class="w-full p-2 text-left">+ Add</PopoverButton>
