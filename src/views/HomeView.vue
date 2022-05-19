@@ -1,4 +1,14 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+import {subscribeSortModels} from "@/infra/firestore/sortModel";
+import {useSortModelStore} from "@/stores/sortModelStore";
+import {storeToRefs} from "pinia";
+
+subscribeSortModels((models) => {
+  sortModelStore.setSortModels(models)
+})
+
+const sortModelStore = useSortModelStore()
+const { sortModels } = storeToRefs(sortModelStore)
 </script>
 
 <template>
@@ -8,7 +18,7 @@
         <h1 class="text-3xl font-bold">
           Hello world!
         </h1>
-
+        <p v-for="(s, idx) in sortModels" :key="idx">{{ s.name }}</p>
       </div>
     </div>
   </main>

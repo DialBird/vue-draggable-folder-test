@@ -13,5 +13,4 @@ export const subscribeSortModels = async (subscribe: (sortModels: DocumentData[]
   onSnapshot(collectionRef, (snap) => {
     subscribe(snap.docs.map((d) => d.data()))
   })
-
 }
