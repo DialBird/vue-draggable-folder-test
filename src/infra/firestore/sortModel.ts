@@ -16,7 +16,7 @@ export const subscribeSortModels = async (subscribe: (sortModels: SortModel[]) =
 }
 
 export const addSortModel = async (payload: Pick<SortModel, 'name'>) => {
-  const { name } = payload
+  const {name} = payload
   const _doc = doc(collection(getFirestore(), 'sortModels'))
-  await setDoc(_doc, { uid: _doc.id, name })
+  await setDoc(_doc, {uid: _doc.id, name})
 }

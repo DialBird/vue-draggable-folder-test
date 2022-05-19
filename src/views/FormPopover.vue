@@ -16,10 +16,12 @@ const onS = async () => {
 
 <template>
   <div class="flex flex-col gap-4">
-    <input v-model="inputName" class="input input-bordered input-sm w-full"
-           placeholder="name"
-           type="text" @click.prevent.stop
-           @keydown.stop
+    <input
+      v-model="inputName"
+      class="input input-bordered input-sm w-full"
+      placeholder="name"
+      type="text" @click.prevent.stop
+      @keydown.stop
     />
     <button class="btn btn-sm" @click.stop="onS">
       Submit
