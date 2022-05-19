@@ -16,9 +16,13 @@ const { sortModels } = storeToRefs(sortModelStore)
     <div class="w-[500px] h-[600px] mx-auto rounded shadow-lg p-8">
       <div>
         <h1 class="text-3xl font-bold">
-          Hello world!
+          List
         </h1>
-        <p v-for="s in sortModels" :key="s.uid">{{ s.name }}</p>
+        <ul>
+          <li v-for="s in sortModels" :key="s.uid" class="border p-2 rounded-sm">
+            <p>{{ s.name }}</p>
+          </li>
+        </ul>
       </div>
     </div>
   </main>

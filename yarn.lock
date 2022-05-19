@@ -393,6 +393,11 @@
     protobufjs "^6.10.0"
     yargs "^16.2.0"
 
+"@headlessui/vue@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@headlessui/vue/-/vue-1.6.1.tgz#772dde92ec3a3a494c827b1643a6d5538baabd29"
+  integrity sha512-fccGN1hsFvS0P73NplZoOdX1rhyaH5jIQE9IUKNaaJC72mQjR3lVvZldo+iiLF5X1bqgl6pDixWdqS2kMGfFxA==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
