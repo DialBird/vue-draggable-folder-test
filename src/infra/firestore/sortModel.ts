@@ -1,6 +1,6 @@
 import {SortModel, sortModelConverter} from "@/domain/entities/SortModel";
 import {getFirestore} from "@/infra/setFirebase";
-import {collection, doc, getDocs, onSnapshot, serverTimestamp, setDoc} from "firebase/firestore";
+import {collection, doc, getDocs, onSnapshot, setDoc, Timestamp, writeBatch} from "firebase/firestore";
 
 export const getSortModels = async () => {
   const collectionRef = collection(getFirestore(), "sortModels");
@@ -18,9 +18,9 @@ const sorter = (a: SortModel, b: SortModel): number => {
   const aN = getSorterNumber(a)
   const bN = getSorterNumber(b)
   if (aOrder === bOrder) {
-    return aN - bN
+    return bN - aN
   } else {
-    return aOrder - bOrder
+    return bOrder - aOrder
   }
 }
 
@@ -34,11 +34,17 @@ export const subscribeSortModels = async (subscribe: (sortModels: SortModel[]) =
 export const addSortModel = async (payload: Pick<SortModel, 'name'>) => {
   const {name} = payload
   const _doc = doc(collection(getFirestore(), 'sortModels'))
-  await setDoc(_doc, {uid: _doc.id, name, createdAt: serverTimestamp(), updatedAt: serverTimestamp()})
+  const now = Timestamp.now()
+  await setDoc(_doc, {uid: _doc.id, name, createdAt: now, updatedAt: now})
 }
 
 export const updateSortModels = async (payload: { list: SortModel[] }) => {
   const {list} = payload
-  const _doc = doc(collection(getFirestore(), 'sortModels'))
-  await setDoc(_doc, {uid: _doc.id, name})
+  const batch = writeBatch(getFirestore())
+  list.forEach((l) => {
+    const ref = doc(getFirestore(), `sortModels/${l.uid}`).withConverter(sortModelConverter)
+    batch.set(ref, l, { merge: true })
+  })
+  await batch.commit()
+
 }

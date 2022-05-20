@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {subscribeSortModels} from "@/infra/firestore/sortModel";
+import {subscribeSortModels, updateSortModels} from "@/infra/firestore/sortModel";
 import {useSortModelStore} from "@/stores/sortModelStore";
 import FormPopover from '@/views/FormPopover.vue'
 import {Popover, PopoverButton, PopoverPanel} from '@headlessui/vue'
@@ -17,6 +17,11 @@ defineComponent({
 
 const sortModelStore = useSortModelStore()
 const {sortModels} = storeToRefs(sortModelStore)
+
+const onDragEnd = () => {
+  const len = sortModels.value.length
+  updateSortModels({ list: sortModels.value.map((sm, idx) => ({ ...sm, order: len - idx })) })
+}
 </script>
 
 <template>
@@ -27,7 +32,7 @@ const {sortModels} = storeToRefs(sortModelStore)
           List
         </h1>
         <ul>
-          <draggable v-model="sortModels" item-key="uid">
+          <draggable v-model="sortModels" item-key="uid" @end="onDragEnd">
             <template #item="{ element }">
               <li class="border-b p-2 rounded-sm hover:bg-gray-100">
                 <p>{{ element.name }}</p>

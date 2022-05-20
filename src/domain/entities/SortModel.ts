@@ -3,9 +3,9 @@ import type {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   SnapshotOptions,
-  Timestamp,
   WithFieldValue,
 } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 
 export class SortModel {
   readonly uid: string
@@ -50,8 +50,8 @@ export function assertSortModel(data: DocumentData): asserts data is SortModelOn
 }
 
 export const sortModelConverter: FirestoreDataConverter<SortModel> = {
-  toFirestore(user: WithFieldValue<SortModel>) {
-    return user;
+  toFirestore(sortModel: WithFieldValue<SortModel>) {
+    return { ...sortModel, updatedAt: Timestamp.now() };
   },
   fromFirestore(
     snapshot: QueryDocumentSnapshot,
