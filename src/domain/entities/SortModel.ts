@@ -8,25 +8,13 @@ import type {
 import { Timestamp } from "firebase/firestore";
 
 export class SortModel {
-  readonly uid: string
-  readonly name: string
-  readonly order?: number
-  readonly createdAt?: Date
-  readonly updatedAt?: Date
-
-  constructor({uid, name, order, createdAt, updatedAt}: {
-    uid: string;
-    name: string;
-    order?: number;
-    createdAt?: Date
-    updatedAt?: Date
-  }) {
-    this.uid = uid;
-    this.name = name;
-    this.order = order;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-  }
+  constructor(
+    readonly uid: string,
+    readonly name: string,
+    readonly order?: number,
+    readonly createdAt?: Date,
+    readonly updatedAt?: Date,
+  ) {}
 }
 
 type SortModelOnFirestore = {
@@ -59,12 +47,12 @@ export const sortModelConverter: FirestoreDataConverter<SortModel> = {
   ): SortModel {
     const data = snapshot.data(options);
     assertSortModel(data);
-    return new SortModel({
-      uid: data.uid,
-      name: data.name,
-      order: data.order,
-      createdAt: data.createdAt.toDate(),
-      updatedAt: data.updatedAt.toDate()
-    });
+    return new SortModel(
+      data.uid,
+      data.name,
+      data.order,
+      data.createdAt.toDate(),
+      data.updatedAt.toDate()
+    );
   },
 };
