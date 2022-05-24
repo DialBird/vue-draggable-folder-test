@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import {subscribeSortModels, updateSortModels} from "@/infra/firestore/sortModel";
-import {useSortModelStore} from "@/stores/sortModelStore";
+import { subscribeSortModels, updateSortModels } from '@/infra/firestore/sortModel'
+import { useSortModelStore } from '@/stores/sortModelStore'
 import FormPopover from '@/views/FormPopover.vue'
-import {Popover, PopoverButton, PopoverPanel} from '@headlessui/vue'
-import {storeToRefs} from "pinia";
-import {defineComponent, ref} from "vue";
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { storeToRefs } from 'pinia'
+import { defineComponent, ref } from 'vue'
 import draggable from 'vuedraggable'
 
 subscribeSortModels((models) => {
@@ -16,18 +16,16 @@ defineComponent({
 })
 
 const sortModelStore = useSortModelStore()
-const {sortModels} = storeToRefs(sortModelStore)
+const { sortModels } = storeToRefs(sortModelStore)
 
 const fromIdx = ref<number>()
 const toIdx = ref<number>()
 
 const onDragEnter = (e: DragEvent) => {
   const target = e.target as HTMLElement
-  if (target.classList.contains('sort-item')) {
-    target.classList.remove('dragover')
-    target.classList.add('dragover')
-    toIdx.value = Number(target.dataset.idx)
-  }
+  target.classList.remove('dragover')
+  target.classList.add('dragover')
+  toIdx.value = Number(target.dataset.idx)
 }
 const onDragLeave = (e: DragEvent) => {
   const target = e.target as HTMLElement
@@ -38,8 +36,11 @@ const onDragLeave = (e: DragEvent) => {
 const onDragStart = (e: DragEvent) => {
   const target = e.target as HTMLElement
   fromIdx.value = Number(target.dataset.idx)
+  target.style.opacity = '0.1'
 }
-const onDragEnd = () => {
+const onDragEnd = (e: DragEvent) => {
+  const target = e.target as HTMLElement
+  target.style.opacity = '1'
   const lst = document.querySelectorAll('.sort-item')
   for (var l of lst) {
     l.classList.remove('dragover')
@@ -50,10 +51,24 @@ const onDragEnd = () => {
     const moved = list[fromIdx.value]
     list.splice(fromIdx.value, 1)
     list.splice(toIdx.value, 0, moved)
-    updateSortModels({list: list.map((sm, idx) => ({...sm, order: len - idx}))})
+    updateSortModels({ list: list.map((sm, idx) => ({ ...sm, order: len - idx })) })
   }
   fromIdx.value = undefined
   toIdx.value = undefined
+}
+const onDragEnterSpan = (e: DragEvent) => {
+  const target = e.target as HTMLElement
+  console.log('comeonnn', target)
+  target.classList.remove('dragover')
+  target.classList.add('dragover')
+}
+const onDragLeaveSpan = (e: DragEvent) => {
+  const target = e.target as HTMLElement
+  target.classList.remove('dragover')
+}
+const onDropSpan = (e: DragEvent) => {
+  const target = e.target as HTMLElement
+  console.log('dropdrop', target.dataset.idx)
 }
 </script>
 
@@ -61,15 +76,13 @@ const onDragEnd = () => {
   <main class="pt-20 w-full">
     <div class="w-[500px] h-[600px] mx-auto rounded shadow-lg p-8">
       <div>
-        <h1 class="text-3xl font-bold">
-          List
-        </h1>
+        <h1 class="text-3xl font-bold">List</h1>
         <ul>
           <li
             v-for="(sm, idx) in sortModels"
             :key="sm.uid"
             :data-idx="idx"
-            class="sort-item border-b p-2 rounded-sm hover:bg-gray-100"
+            class="sort-item relative border-b p-2 rounded-sm hover:bg-gray-100"
             draggable="true"
             @dragstart="onDragStart"
             @dragend.prevent="onDragEnd"
@@ -77,7 +90,23 @@ const onDragEnd = () => {
             @dragleave.prevent="onDragLeave"
             @dragover.prevent
           >
+            <span
+              v-if="fromIdx !== undefined && fromIdx > idx"
+              :data-idx="idx"
+              class="sort-pin block absolute top-0 left-0 w-full border-t-2 border-blue-600 opacity-0"
+              @drop="onDropSpan"
+              @dragenter.prevent.stop="onDragEnterSpan"
+              @dragleave.prevent.stop="onDragLeaveSpan"
+            />
             <p class="select-none pointer-events-none">{{ sm.name }}</p>
+            <span
+              v-if="fromIdx !== undefined && fromIdx < idx"
+              :data-idx="idx"
+              class="sort-pin block absolute bottom-0 left-0 w-full border-t-2 border-blue-600 opacity-0"
+              @drop="onDropSpan"
+              @dragenter.prevent.stop="onDragEnterSpan"
+              @dragleave.prevent.stop="onDragLeaveSpan"
+            />
           </li>
           <li class="hover:bg-gray-100 transition relative">
             <Popover v-slot="{ close }">
@@ -91,7 +120,7 @@ const onDragEnd = () => {
                 leave-to-class="transform scale-95 opacity-0"
               >
                 <PopoverPanel class="absolute bg-white w-[200px] rounded shadow-md p-2">
-                  <FormPopover @submit-and-close="close()"/>
+                  <FormPopover @submit-and-close="close()" />
                 </PopoverPanel>
               </transition>
             </Popover>
@@ -99,13 +128,20 @@ const onDragEnd = () => {
         </ul>
       </div>
     </div>
+    <div ref="dragGhostRef" class="h-[20px] w-[20px] bg-red-200" />
   </main>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .sort-item {
   &.dragover {
-    background: rgba(87, 195, 215, 0.2);
+    background: rgba(13, 168, 196, 0.05);
+  }
+}
+
+.sort-pin {
+  &.dragover {
+    opacity: 1;
   }
 }
 </style>
