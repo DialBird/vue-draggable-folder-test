@@ -1,13 +1,16 @@
-import type {SortModel} from "@/domain/entities/SortModel";
-import {defineStore} from "pinia";
+import type { SortModel } from '@/domain/entities/SortModel'
+import { groupBy } from 'lodash'
+import { defineStore } from 'pinia'
 
-export const useSortModelStore = defineStore("sortModel", {
+export const useSortModelStore = defineStore('sortModel', {
   state: () => ({
-    sortModels: [] as SortModel[],
+    sortModelGroupNames: [] as string[],
+    sortModels: {} as { [groupName: string]: SortModel[] },
   }),
   actions: {
     setSortModels(models: SortModel[]) {
-      this.sortModels = models
-    }
+      this.sortModels = groupBy(models, 'groupName')
+      this.sortModelGroupNames = Object.keys(this.sortModels)
+    },
   },
-});
+})

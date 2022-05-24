@@ -12,6 +12,7 @@ export class SortModel {
     readonly uid: string,
     readonly name: string,
     readonly order?: number,
+    readonly groupName?: string,
     readonly createdAt?: Date,
     readonly updatedAt?: Date,
   ) {}
@@ -23,6 +24,7 @@ type SortModelOnFirestore = {
   readonly createdAt: Timestamp
   readonly updatedAt: Timestamp
   readonly order?: number
+  readonly groupName?: string
 }
 
 export function assertSortModel(data: DocumentData): asserts data is SortModelOnFirestore {
@@ -51,6 +53,7 @@ export const sortModelConverter: FirestoreDataConverter<SortModel> = {
       data.uid,
       data.name,
       data.order,
+      data.groupName,
       data.createdAt.toDate(),
       data.updatedAt.toDate()
     );

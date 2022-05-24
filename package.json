@@ -12,6 +12,7 @@
     "@types/sortablejs": "^1.13.0",
     "daisyui": "^2.15.0",
     "firebase": "^9.8.1",
+    "lodash": "^4.17.21",
     "pinia": "^2.0.13",
     "sortablejs": "^1.15.0",
     "vue": "^3.2.33",
@@ -19,6 +20,7 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
     "@types/node": "^16.11.27",
     "@types/vuedraggable": "^2.24.0",
     "@vitejs/plugin-vue": "^2.3.1",
