@@ -3,6 +3,7 @@ import { subscribeSortModels, updateSortModels } from '@/infra/firestore/sortMod
 import { useSortModelStore } from '@/stores/sortModelStore'
 import FormPopover from '@/views/FormPopover.vue'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import {cloneDeep, groupBy} from "lodash";
 import { storeToRefs } from 'pinia'
 import { defineComponent, ref } from 'vue'
 import draggable from 'vuedraggable'
@@ -16,7 +17,7 @@ defineComponent({
 })
 
 const sortModelStore = useSortModelStore()
-const { sortModels } = storeToRefs(sortModelStore)
+const { sortModelGroupNames, sortModels } = storeToRefs(sortModelStore)
 
 const fromIdx = ref<number>()
 const toIdx = ref<number>()
@@ -57,12 +58,22 @@ const onDragLeaveSpan = (e: DragEvent) => {
   const target = e.target as HTMLElement
   target.classList.remove('dragover')
 }
+const onDropList = (e: DragEvent) => {
+  // グループを作成して
+  const target = e.target as HTMLElement
+  const toIdx = Number(target.dataset.idx)
+  console.log('drop list')
+}
+
+const calcToIdx = (idx: number, groupName?: string) => {}
 const onDropSpan = (e: DragEvent) => {
   const target = e.target as HTMLElement
-
   const toIdx = Number(target.dataset.idx)
+  const toGroupName = target.dataset.groupName
+
+  // グループが作られたら、一番上に移動しつつ、
   if (fromIdx.value !== undefined && !isNaN(toIdx)) {
-    const list = sortModels.value.slice()
+    const groups = cloneDeep(groupBy(sortModels.value, 'groupName'))
     const len = list.length
     const moved = list[fromIdx.value]
     list.splice(fromIdx.value, 1)
@@ -79,35 +90,42 @@ const onDropSpan = (e: DragEvent) => {
       <div>
         <h1 class="text-3xl font-bold">List</h1>
         <ul>
-          <li
-            v-for="(sm, idx) in sortModels"
-            :key="sm.uid"
-            :data-idx="idx"
-            class="sort-item relative h-[44px] border-b p-2 rounded-sm hover:bg-gray-100"
-            draggable="true"
-            @dragstart="onDragStart"
-            @dragend.prevent="onDragEnd"
-            @dragenter.prevent="onDragEnter"
-            @dragleave.prevent="onDragLeave"
-            @dragover.prevent
-          >
-            <span
-              v-if="fromIdx !== undefined && fromIdx > idx"
-              :data-idx="idx"
-              class="sort-pin block absolute top-0 left-0 w-full border-t-2 border-blue-600 opacity-0"
-              @drop="onDropSpan"
-              @dragenter.prevent.stop="onDragEnterSpan"
-              @dragleave.prevent.stop="onDragLeaveSpan"
-            />
-            <p class="select-none pointer-events-none">{{ sm.name }}</p>
-            <span
-              v-if="fromIdx !== undefined && fromIdx < idx"
-              :data-idx="idx"
-              class="sort-pin block absolute bottom-0 left-0 w-full border-t-2 border-blue-600 opacity-0"
-              @drop="onDropSpan"
-              @dragenter.prevent.stop="onDragEnterSpan"
-              @dragleave.prevent.stop="onDragLeaveSpan"
-            />
+          <li v-for="(groupName, groupIdx) in sortModelGroupNames" :key="groupIdx" :data-group-name="groupName">
+            <p class="text-lg font-bold">{{ groupName !== 'undefined' ? groupName : '' }}</p>
+            <ul>
+              <li
+                v-for="(sm, idx) in sortModels[groupName]"
+                :key="sm.uid"
+                class="sort-item relative h-[44px] border-b p-2 rounded-sm hover:bg-gray-100"
+                draggable="true"
+                @dragstart="onDragStart"
+                @dragend.prevent="onDragEnd"
+                @dragenter.prevent="onDragEnter"
+                @dragleave.prevent="onDragLeave"
+                @dragover.prevent
+                @drop.stop="onDropList"
+              >
+                <span
+                  v-if="fromIdx !== undefined && fromIdx > idx"
+                  :data-group-name="groupName === 'undefined' ? undefined : groupName"
+                  :data-idx="idx"
+                  class="sort-pin block absolute top-0 left-0 w-full border-t-2 border-blue-600 opacity-0"
+                  @drop.stop="onDropSpan"
+                  @dragenter.prevent.stop="onDragEnterSpan"
+                  @dragleave.prevent.stop="onDragLeaveSpan"
+                />
+                <p class="select-none pointer-events-none">{{ sm.name }}</p>
+                <span
+                  v-if="fromIdx !== undefined && fromIdx < idx"
+                  :data-group-name="groupName === 'undefined' ? undefined : groupName"
+                  :data-idx="idx"
+                  class="sort-pin block absolute bottom-0 left-0 w-full border-t-2 border-blue-600 opacity-0"
+                  @drop.stop="onDropSpan"
+                  @dragenter.prevent.stop="onDragEnterSpan"
+                  @dragleave.prevent.stop="onDragLeaveSpan"
+                />
+              </li>
+            </ul>
           </li>
           <li class="hover:bg-gray-100 transition relative">
             <Popover v-slot="{ close }">
@@ -144,6 +162,7 @@ const onDropSpan = (e: DragEvent) => {
   &.dragover {
     opacity: 1;
   }
+
   &::before {
     content: '';
     position: absolute;
@@ -152,6 +171,7 @@ const onDropSpan = (e: DragEvent) => {
     height: 10px;
     width: 100%;
   }
+
   &::after {
     content: '';
     position: absolute;
