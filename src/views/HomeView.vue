@@ -45,20 +45,11 @@ const onDragEnd = (e: DragEvent) => {
   for (var l of lst) {
     l.classList.remove('dragover')
   }
-  if (fromIdx.value !== undefined && toIdx.value !== undefined) {
-    const list = sortModels.value.slice()
-    const len = list.length
-    const moved = list[fromIdx.value]
-    list.splice(fromIdx.value, 1)
-    list.splice(toIdx.value, 0, moved)
-    updateSortModels({ list: list.map((sm, idx) => ({ ...sm, order: len - idx })) })
-  }
   fromIdx.value = undefined
   toIdx.value = undefined
 }
 const onDragEnterSpan = (e: DragEvent) => {
   const target = e.target as HTMLElement
-  console.log('comeonnn', target)
   target.classList.remove('dragover')
   target.classList.add('dragover')
 }
@@ -68,7 +59,17 @@ const onDragLeaveSpan = (e: DragEvent) => {
 }
 const onDropSpan = (e: DragEvent) => {
   const target = e.target as HTMLElement
-  console.log('dropdrop', target.dataset.idx)
+
+  const toIdx = Number(target.dataset.idx)
+  if (fromIdx.value !== undefined && !isNaN(toIdx)) {
+    const list = sortModels.value.slice()
+    const len = list.length
+    const moved = list[fromIdx.value]
+    list.splice(fromIdx.value, 1)
+    list.splice(toIdx, 0, moved)
+    updateSortModels({ list: list.map((sm, idx) => ({ ...sm, order: len - idx })) })
+  }
+  fromIdx.value = undefined
 }
 </script>
 
@@ -82,7 +83,7 @@ const onDropSpan = (e: DragEvent) => {
             v-for="(sm, idx) in sortModels"
             :key="sm.uid"
             :data-idx="idx"
-            class="sort-item relative border-b p-2 rounded-sm hover:bg-gray-100"
+            class="sort-item relative h-[44px] border-b p-2 rounded-sm hover:bg-gray-100"
             draggable="true"
             @dragstart="onDragStart"
             @dragend.prevent="onDragEnd"
@@ -142,6 +143,25 @@ const onDropSpan = (e: DragEvent) => {
 .sort-pin {
   &.dragover {
     opacity: 1;
+  }
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 0;
+    height: 10px;
+    width: 100%;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -8px;
+    height: 10px;
+    box-sizing: border-box;
+    width: 10px;
+    border-radius: 5px;
+    border: 2px solid blue;
   }
 }
 </style>
